@@ -1,64 +1,124 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen({ navigation }) {
-  const [petData, setPetData] = useState({ nome: '', fase: '' });
+  const [nomeTutor, setNomeTutor] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      const carregarDados = async () => {
-        try {
-          const nomeSalvo = await AsyncStorage.getItem('@clyvo_nome');
-          const faseSalva = await AsyncStorage.getItem('@clyvo_fase');
-          if (nomeSalvo) {
-            setPetData({ nome: nomeSalvo, fase: faseSalva || 'Adulto' });
-          }
-        } catch (e) {
-          console.error("Erro ao carregar do AsyncStorage", e);
+  // Verifica se o tutor já se cadastrou toda vez que a tela abre
+  useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        const nomeSalvo = await AsyncStorage.getItem('@tutor_nome');
+        if (!nomeSalvo) {
+          navigation.replace('CadastroTutor');
+        } else {
+          // Pega apenas o primeiro nome para deixar amigável
+          setNomeTutor(nomeSalvo.split(' ')[0]);
         }
-      };
-      carregarDados();
-    }, [])
-  );
+      } catch (error) {
+        console.error("Erro ao carregar dados do tutor", error);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', carregarDados);
+    return unsubscribe;
+  }, [navigation]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>
-        {petData.nome ? `Cuidado Contínuo para ${petData.nome}` : 'Bem-vindo à Clyvo'}
-      </Text>
-      
-      <View style={styles.alertBox}>
-        <Text style={styles.alertTitle}>⚠️ Alerta Preventivo</Text>
-        <Text style={styles.alertDesc}>A dose de Vermífugo está atrasada em 3 dias.</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        
+        {/* Cabeçalho de Boas-vindas */}
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Olá, {nomeTutor}! 👋</Text>
+          <Text style={styles.subtitle}>Cuidado Contínuo para seus pets</Text>
+        </View>
 
-      <View style={styles.grid}>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('CadastroPet')}>
-          <Text style={styles.cardTitle}>🐶 Perfil e Fase de Vida</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Historico')}>
-          <Text style={styles.cardTitle}>📋 Histórico Clínico</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('SmartCollar')}>
-          <Text style={styles.cardTitle}>📡 Smart Collar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Agendamento')}>
-          <Text style={styles.cardTitle}>📅 Agendar Retorno</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        {/* Card de Alerta (Vindo da sua versão anterior, agora modernizado) */}
+        <View style={styles.alertCard}>
+          <Text style={styles.alertTitle}>⚠️ Alerta Preventivo</Text>
+          <Text style={styles.alertText}>A dose de Vermífugo da Sky está atrasada em 3 dias.</Text>
+        </View>
+
+        {/* Grid de Menus */}
+        <Text style={styles.sectionTitle}>Acesso Rápido</Text>
+        <View style={styles.grid}>
+          
+          <TouchableOpacity 
+            style={styles.card} 
+            onPress={() => navigation.navigate('CadastroPet')}
+          >
+            <Text style={styles.cardIcon}>🐶</Text>
+            <Text style={styles.cardText}>Meus Pets</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.card} 
+            onPress={() => navigation.navigate('Historico')}
+          >
+            <Text style={styles.cardIcon}>📋</Text>
+            <Text style={styles.cardText}>Histórico</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.card} 
+            onPress={() => navigation.navigate('SmartCollar')}
+          >
+            <Text style={styles.cardIcon}>📡</Text>
+            <Text style={styles.cardText}>Smart Collar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.card} 
+            onPress={() => navigation.navigate('Agendamento')}
+          >
+            <Text style={styles.cardIcon}>📅</Text>
+            <Text style={styles.cardText}>Agendar</Text>
+          </TouchableOpacity>
+
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#F4F6F9', justifyContent: 'center' },
-  headerText: { fontSize: 22, fontWeight: 'bold', color: '#1A2B4C', marginBottom: 20, textAlign: 'center' },
-  alertBox: { backgroundColor: '#FFE4E1', padding: 15, borderRadius: 10, marginBottom: 20, borderLeftWidth: 5, borderLeftColor: '#FF6347' },
-  alertTitle: { fontWeight: 'bold', color: '#B22222', fontSize: 16 },
-  alertDesc: { color: '#B22222', marginTop: 5 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  card: { backgroundColor: '#FFF', width: '48%', padding: 20, borderRadius: 12, marginBottom: 15, elevation: 2, alignItems: 'center' },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: '#1A2B4C', textAlign: 'center' }
+  safeArea: { flex: 1, backgroundColor: '#F5F7FA' },
+  container: { padding: 20 },
+  header: { marginBottom: 24, marginTop: 10 },
+  greeting: { fontSize: 28, fontWeight: 'bold', color: '#1A2B4C' },
+  subtitle: { fontSize: 16, color: '#666', marginTop: 4 },
+  alertCard: {
+    backgroundColor: '#FFE5E5',
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF4D4D',
+    marginBottom: 30,
+  },
+  alertTitle: { color: '#D80000', fontWeight: 'bold', fontSize: 16, marginBottom: 4 },
+  alertText: { color: '#B20000', fontSize: 14 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A2B4C', marginBottom: 16 },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  card: {
+    backgroundColor: '#FFF',
+    width: '48%',
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cardIcon: { fontSize: 32, marginBottom: 12 },
+  cardText: { fontSize: 14, fontWeight: '600', color: '#333', textAlign: 'center' }
 });
