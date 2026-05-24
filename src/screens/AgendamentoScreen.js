@@ -23,6 +23,26 @@ export default function AgendamentoScreen() {
     { id: 'Retorno', icone: '🔄', cor: '#FFF4E5', texto: '#D88000' }
   ];
 
+  // Máscara para DD/MM/AAAA
+  const formatarData = (texto) => {
+    let num = texto.replace(/\D/g, ''); // Tira tudo que não for número
+    if (num.length > 4) {
+      num = num.replace(/^(\d{2})(\d{2})(\d+)/, '$1/$2/$3');
+    } else if (num.length > 2) {
+      num = num.replace(/^(\d{2})(\d+)/, '$1/$2');
+    }
+    setData(num.substring(0, 10)); // Trava em 10 caracteres no máximo
+  };
+
+  // Máscara para HH:MM
+  const formatarHora = (texto) => {
+    let num = texto.replace(/\D/g, '');
+    if (num.length > 2) {
+      num = num.replace(/^(\d{2})(\d+)/, '$1:$2');
+    }
+    setHora(num.substring(0, 5)); // Trava em 5 caracteres no máximo
+  };
+
   // Disparado quando a tela abre
   useEffect(() => {
     carregarDados();
@@ -177,9 +197,10 @@ export default function AgendamentoScreen() {
               <TextInput 
                 style={styles.input} 
                 value={data} 
-                onChangeText={setData} 
+                onChangeText={formatarData} 
                 placeholder="DD/MM/AAAA" 
                 keyboardType="numeric"
+                maxLength={10}
               />
             </View>
             <View style={styles.inputGroupHalf}>
@@ -187,9 +208,10 @@ export default function AgendamentoScreen() {
               <TextInput 
                 style={styles.input} 
                 value={hora} 
-                onChangeText={setHora} 
+                onChangeText={formatarHora} 
                 placeholder="HH:MM" 
                 keyboardType="numeric"
+                maxLength={5}
               />
             </View>
           </View>
