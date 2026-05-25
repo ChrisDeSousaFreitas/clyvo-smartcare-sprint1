@@ -17,6 +17,12 @@ O **Clyvo SmartCare** é um aplicativo mobile focado na gestão longitudinal de 
 
 ---
 
+## 📹 Apresentação e Pitch
+Confira o vídeo completo de demonstração da nossa solução e a explicação do fluxo de desenvolvimento diretamente no YouTube:
+▶️ **[Assistir ao Vídeo Pitch do Clyvo SmartCare](https://youtu.be/8wMluQitc-k)**
+
+---
+
 ## 🚀 Funcionalidades e Missões Implementadas
 
 O projeto foi construído de forma iterativa, dividindo as funcionalidades em 5 pilares principais:
